@@ -21,8 +21,8 @@ Definitions (within a tolerance of bases, set by --tolerance):
 - terminating: A single alignment ends at a contig end and the read also ends.
 - clipping: Any read that hits a contig end but is neither circular, hairpin nor terminating.
 - ambiguous: Any read that qualifies for more than one of the above categories. For example, 
-    when a linear sequenceas has a terminal inverted repeat and the read is contained within this
-    repeat, its alignments can be compatible with both circular and hairpin structures.
+    when a linear sequence has has a terminal inverted repeat and the read is contained within
+    this repeat, its alignments can be compatible with both circular and hairpin structures.
 
 Usage example:
     minimap2 -c -t 16 assembly.fasta reads.fastq.gz > alignments.paf
@@ -161,10 +161,12 @@ def alignments_are_terminating(alignments, tolerance):
     # tolerance) on the corresponding read side based on strand and end.
     for a in alignments:
         if hits_left_end(a, tolerance):
-            if (a.strand == '+' and read_hits_start(a, tolerance)) or (a.strand == '-' and read_hits_end(a, tolerance)):
+            if ((a.strand == '+' and read_hits_start(a, tolerance)) or
+                (a.strand == '-' and read_hits_end(a, tolerance))):
                 return True
         if hits_right_end(a, tolerance):
-            if (a.strand == '+' and read_hits_end(a, tolerance)) or (a.strand == '-' and read_hits_start(a, tolerance)):
+            if ((a.strand == '+' and read_hits_end(a, tolerance)) or
+                (a.strand == '-' and read_hits_start(a, tolerance))):
                 return True
     return False
 
@@ -192,7 +194,8 @@ def alignments_adjacent_on_read(a, b, tolerance):
 
 
 def print_header():
-    print('name\tcircular_reads\thairpin_reads\tterminating_reads\tclipping_reads\tambiguous_reads')
+    print('name\tcircular_reads\thairpin_reads\tterminating_reads\t'
+          'clipping_reads\tambiguous_reads')
 
 
 def get_fasta_names(filename):
