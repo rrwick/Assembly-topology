@@ -22,9 +22,7 @@ Definitions (within a tolerance of bases, set by --tolerance):
 - clipping: Any read that hits a contig end but is neither circular, hairpin nor terminating.
 - ambiguous: Any read that qualifies for more than one of the above categories. For example, 
     when a linear sequenceas has a terminal inverted repeat and the read is contained within this
-    repeat, its alignments can be compatible with both circular and hairpin structures. Also,
-    any read with excessively an short alignment (as set by --min_align_len) will go in this
-    category.
+    repeat, its alignments can be compatible with both circular and hairpin structures.
 
 Usage example:
     minimap2 -c -t 16 assembly.fasta reads.fastq.gz > alignments.paf
@@ -51,9 +49,6 @@ def get_arguments():
     setting_args.add_argument('--tolerance', type=int, default=10,
                               help='Allowed gap size when comparing alignment positions '
                                    '(default: 10)')
-    setting_args.add_argument('--min_align_len', type=int, default=500,
-                              help='Alignments shorter than this lead to an ambiguous read '
-                                   '(default: 500)')
 
     other_args = parser.add_argument_group('Other')
     other_args.add_argument('-h', '--help', action='help',
@@ -68,13 +63,13 @@ def main():
     target_names = get_fasta_names(args.assembly_fasta)
     alignments = load_alignments(args.alignments_paf)
     print_header()
-    counts = count_sequence_end_reads(target_names, alignments, args.tolerance, args.min_align_len)
+    counts = count_sequence_end_reads(target_names, alignments, args.tolerance)
     for name in target_names:
         circular, hairpin, terminating, clipped, ambiguous = counts[name]
         print(f'{name}\t{circular}\t{hairpin}\t{terminating}\t{clipped}\t{ambiguous}')
 
 
-def count_sequence_end_reads(target_names, alignments, tolerance, min_align_len):
+def count_sequence_end_reads(target_names, alignments, tolerance):
     counts = {}
     for name in target_names:
         counts[name] = [0, 0, 0, 0, 0]
@@ -92,8 +87,7 @@ def count_sequence_end_reads(target_names, alignments, tolerance, min_align_len)
         circ = alignments_are_circular(read_alignments, tolerance)
         hairpin = alignments_are_hairpin(read_alignments, tolerance)
         term = alignments_are_terminating(read_alignments, tolerance)
-        too_short = alignments_are_too_short(read_alignments, min_align_len)
-        if sum([circ, hairpin, term]) > 1 or too_short:  # ambiguous
+        if sum([circ, hairpin, term]) > 1:  # ambiguous
             counts[ref_name][4] += 1
         elif circ:
             counts[ref_name][0] += 1
@@ -136,7 +130,7 @@ def alignments_are_circular(alignments, tolerance):
                             (hits_left_end(aj, tolerance) and hits_right_end(ai, tolerance))
             if not opposite_ends:
                 continue
-            if segments_adjacent_on_read(ai, aj, tolerance):
+            if alignments_adjacent_on_read(ai, aj, tolerance):
                 return True
     return False
 
@@ -157,7 +151,7 @@ def alignments_are_hairpin(alignments, tolerance):
             same_right = hits_right_end(ai, tolerance) and hits_right_end(aj, tolerance)
             if not (same_left or same_right):
                 continue
-            if segments_adjacent_on_read(ai, aj, tolerance):
+            if alignments_adjacent_on_read(ai, aj, tolerance):
                 return True
     return False
 
@@ -175,30 +169,23 @@ def alignments_are_terminating(alignments, tolerance):
     return False
 
 
-def alignments_are_too_short(alignments, min_align_len):
-    for a in alignments:
-        if a.query_end - a.query_start < min_align_len:
-            return True
-    return False
-
-
-def hits_left_end(a: "Alignment", tolerance) -> bool:
+def hits_left_end(a, tolerance):
     return a.target_start <= tolerance
 
 
-def hits_right_end(a: "Alignment", tolerance) -> bool:
+def hits_right_end(a, tolerance):
     return a.target_end >= (a.target_length - tolerance)
 
 
-def read_hits_start(a: "Alignment", tolerance) -> bool:
+def read_hits_start(a, tolerance):
     return a.query_start <= tolerance
 
 
-def read_hits_end(a: "Alignment", tolerance) -> bool:
+def read_hits_end(a, tolerance):
     return a.query_end >= (a.query_length - tolerance)
 
 
-def segments_adjacent_on_read(a: "Alignment", b: "Alignment", tolerance) -> bool:
+def alignments_adjacent_on_read(a, b, tolerance):
     # Are two alignments adjacent along the read within tolerance?
     return (abs(a.query_end - b.query_start) <= tolerance or
             abs(b.query_end - a.query_start) <= tolerance)
