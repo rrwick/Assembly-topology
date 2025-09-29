@@ -14,11 +14,12 @@ Output to stdout:
 Definitions (within a tolerance of bases, set by --tolerance):
 - circular: The read crosses a contig boundary on the same strand — two alignments to the same
     target and same strand, one near the left end and the other near the right end of the
-    reference, and the two query segments are adjacent on the read.
+    contig, and the two alignments are adjacent on the read.
 - hairpin: The read folds back at the same contig end — two alignments to the same target but
-    opposite strands, both near the same contig end (left or right), and their query segments
-    are adjacent.
-- terminating: A single alignment ends at a contig end and the read also ends.
+    opposite strands, both near the same contig end (left or right), and the two alignments are
+    adjacent on the read.
+- terminating: A single alignment ends at a contig end and the read also ends, consistent with a
+    linear sequence with an open (non-hairpin) end.
 - clipping: Any read that hits a contig end but is neither circular, hairpin nor terminating.
 - ambiguous: Any read that qualifies for more than one of the above categories. For example, 
     when a linear sequence has has a terminal inverted repeat and the read is contained within
