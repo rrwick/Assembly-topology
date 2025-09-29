@@ -10,14 +10,14 @@ minimap2 -c -t 16 assembly.fasta reads.fastq.gz > alignments.paf
 
 And it will produce a tab-delimited output like this:
 ```
-name          circular_reads  hairpin_reads  terminating_reads  clipping_reads  ambiguous_reads
-chromosome_1  248             0              1                  2               8
-chromosome_2  0               88             0                  5               0
-plasmid_1     219             0              0                  2               9
-plasmid_2     167             0              0                  2               4
-plasmid_3     174             0              0                  6               3
-plasmid_4     0               319            3                  21              3
-plasmid_5     316             0              1                  16              4
+name          circular  hairpin  terminating  clipping  ambiguous
+chromosome_1  248       0        1            2         8
+chromosome_2  0         88       0            5         0
+plasmid_1     219       0        0            2         9
+plasmid_2     167       0        0            2         4
+plasmid_3     174       0        0            6         3
+plasmid_4     0         319      3            21        3
+plasmid_5     316       0        1            16        4
 ```
 
 Note: This script is experimental. It assumes a finished, high-quality assembly and is intended to provide evidence for each sequence's topology. On draft or lower-quality assemblies (e.g. fragmented, poorly trimmed or misassembled), the results may be ambiguous or misleading.

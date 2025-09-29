@@ -195,8 +195,7 @@ def alignments_adjacent_on_read(a, b, tolerance):
 
 
 def print_header():
-    print('name\tcircular_reads\thairpin_reads\tterminating_reads\t'
-          'clipping_reads\tambiguous_reads')
+    print('name\tcircular\thairpin\tterminating\tclipping\tambiguous')
 
 
 def get_fasta_names(filename):
